@@ -32,12 +32,12 @@ public class CalculateSales {
 		Map<String, Long> branchSales = new HashMap<>();
 
 		// 支店定義ファイル読み込み処理
+		//61行目private static boolean readFileを呼びます
 		if(!readFile(args[0], FILE_NAME_BRANCH_LST, branchNames, branchSales)) {
 			return;
 		}
 
 		// ※ここから集計処理を作成してください。(処理内容2-1、2-2)
-
 
 
 		// 支店別集計ファイル書き込み処理
@@ -56,6 +56,7 @@ public class CalculateSales {
 	 * @param 支店コードと売上金額を保持するMap
 	 * @return 読み込み可否
 	 */
+	//365行目、if(!readFile(args[0], FILE_NAME_BRANCH_LST, branchNames, branchSales)) {から呼ばれます
 	private static boolean readFile(String path, String fileName, Map<String, String> branchNames, Map<String, Long> branchSales) {
 		BufferedReader br = null;
 
@@ -68,6 +69,13 @@ public class CalculateSales {
 			// 一行ずつ読み込む
 			while((line = br.readLine()) != null) {
 				// ※ここの読み込み処理を変更してください。(処理内容1-2)
+			    String[] items = line.split(",");
+     			    branchNames.put(items[0], items[1]);
+	    		    branchSales.put(items[0], 0L);
+
+				    //Mapに追加する2つの情報を putの引数として指定します。
+
+
 				System.out.println(line);
 			}
 
