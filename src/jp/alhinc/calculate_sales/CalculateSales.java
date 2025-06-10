@@ -4,7 +4,9 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class CalculateSales {
@@ -23,7 +25,7 @@ public class CalculateSales {
 	/**
 	 * メインメソッド
 	 *
-	 * @param コマンドライン引数
+	 * @param コマンドライン引数＝args＝フォルダパス(C:\Users\trainee1425\Desktop\売上集計課題)
 	 */
 	public static void main(String[] args) {
 		// 支店コードと支店名を保持するMap
@@ -38,14 +40,85 @@ public class CalculateSales {
 		}
 
 		// ※ここから集計処理を作成してください。(処理内容2-1、2-2)
+		//全てのファイルを格納したい↓
+		File[] files = new File(args[0]).listFiles();
 
+		//先にファイルの情報を格納する List(ArrayList) を宣⾔します。
+		List<File> rcdFiles = new ArrayList<>();
 
-		// 支店別集計ファイル書き込み処理
-		if(!writeFile(args[0], FILE_NAME_BRANCH_OUT, branchNames, branchSales)) {
-			return;
+		for(int i = 0; i < files.length ; i++) {
+			if(files[i].getName().matches("^[0-9]{8}[.]rcd$")) {
+				//trueの場合の処理
+				//売上ファイルの条件に当てはまったものだけ、List(ArrayList) に追加します。
+				rcdFiles.add(files[i]);
+			}
 		}
 
+		//rcdFilesに複数の売上ファイルの情報を格納しているので、その数だけ繰り返します。
+		for(int i = 0; i < rcdFiles.size(); i++) {
+
+			BufferedReader br = null;
+			try {
+				//path…args=ファイルパス
+				// fileName…rcdFiles(i番目)の名前
+				File file = new File(args[0], rcdFiles.get(i).getName());
+				FileReader fr = new FileReader(file);
+				br = new BufferedReader(fr);
+
+
+				//支店定義ファイル読み込み(readFileメソッド)を参考に売上ファイルの中身を読み込みます。
+
+				//1行読み込んだものを格納
+				String line;
+
+				//保持する用のlistを宣言する★
+				List<File> list = new ArrayList<>();
+
+				// 一行ずつ読み込む(値がnullでない限り、1行ずつ読み込み、lineに入れる　を繰り返す)
+				while ((line = br.readLine()) != null) {
+
+					//売上ファイルの1行目には支店コード、2行目には売上金額が入っています。
+					//どちらもこの後の処理で必要となるため、売上ファイルの中身(line)はListで保持(add)しましょう。★
+					list.add(line(i));
+
+				}
+
+				//売上ファイルから読み込んだ売上金額をMapに加算していくために、型の変換を行います。
+				//long fileSale = Long.parseLong(売上⾦額);
+
+				//読み込んだ売上⾦額を加算します。
+				//Long saleAmount = 売上⾦額を⼊れたMap.get(⽀店コード) + long に変換した売上⾦額;
+
+				//加算した売上⾦額をMapに追加します。
+
+
+			} catch (IOException e) {
+				System.out.println(UNKNOWN_ERROR);
+				return false;
+			} finally {
+				// ファイルを開いている場合
+				if (br != null) {
+					try {
+						// ファイルを閉じる
+						br.close();
+					} catch (IOException e) {
+						System.out.println(UNKNOWN_ERROR);
+						return false;
+					}
+				}
+			} //finallyの終わり
+		} //for文の終わり
+
+
+
 	}
+
+
+	private static File line(int i) {
+		// TODO 自動生成されたメソッド・スタブ
+		return null;
+	}
+
 
 	/**
 	 * 支店定義ファイル読み込み処理
@@ -60,7 +133,11 @@ public class CalculateSales {
 	private static boolean readFile(String path, String fileName, Map<String, String> branchNames, Map<String, Long> branchSales) {
 		BufferedReader br = null;
 
+
 		try {
+			//ファイルを開く
+			//path…引数で持ってきた値。中身はファイルパス
+			// fileName…引数で持ってきた値。中身は”branch.lst”
 			File file = new File(path, fileName);
 			FileReader fr = new FileReader(file);
 			br = new BufferedReader(fr);
