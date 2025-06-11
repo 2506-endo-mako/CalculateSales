@@ -108,7 +108,9 @@ public class CalculateSales {
 				}
 			} //finallyの終わり
 		} //for文の終わり
-
+		if(!writeFile(args[0], FILE_NAME_BRANCH_OUT, branchNames, branchSales)) {
+			return;
+		}
 	}
 
 	/**
@@ -176,6 +178,7 @@ public class CalculateSales {
 	private static boolean writeFile(String path, String fileName, Map<String, String> branchNames,
 			Map<String, Long> branchSales) {
 		// ※ここに書き込み処理を作成してください。(処理内容3-1)
+
 		BufferedWriter bw = null;
 
 		try {
@@ -201,10 +204,10 @@ public class CalculateSales {
 			return false;
 		} finally {
 			// ファイルを開いている場合
-			if (br != null) {
+			if (bw != null) {
 				try {
 					// ファイルを閉じる
-					br.close();
+					bw.close();
 				} catch (IOException e) {
 					System.out.println(UNKNOWN_ERROR);
 					return false;
