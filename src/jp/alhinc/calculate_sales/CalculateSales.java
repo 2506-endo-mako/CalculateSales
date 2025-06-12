@@ -35,6 +35,12 @@ public class CalculateSales {
 		// 支店コードと売上金額を保持するMap
 		Map<String, Long> branchSales = new HashMap<>();
 
+		if (args.length != 1) {
+			//コマンドライン引数が1つ設定されていなかった場合は、
+			//エラーメッセージをコンソールに表⽰します。
+			System.out.println(UNKNOWN_ERROR);
+		}
+
 		// 支店定義ファイル読み込み処理
 		//61行目private static boolean readFileを呼びます
 		if (!readFile(args[0], FILE_NAME_BRANCH_LST, branchNames, branchSales)) {
@@ -45,18 +51,24 @@ public class CalculateSales {
 		//全てのファイルを格納したい↓
 		File[] files = new File(args[0]).listFiles();
 
-		//先にファイルの情報を格納する List(ArrayList) を宣⾔します。
+		//先にファイルの情報を格納する List(ArrayList) を宣言します。
+		//↓リスト型のファイル
 		List<File> rcdFiles = new ArrayList<>();
 
 		for (int i = 0; i < files.length; i++) {
-			if (files[i].getName().matches("^[0-9]{8}[.]rcd$")) {
+			//--↓ファイルの情報
+			if (files[i].isFile() && files[i].getName().matches("^[0-9]{8}[.]rcd$")) {
+
+				//対象がファイルであり、「数字8桁.rcd」なのか判定します。
+				//上記のコードに差し替えるため下記のコードは//で消す
+				//		if (files[i].getName().matches("^[0-9]{8}[.]rcd$")) {
 				//trueの場合の処理
 				//売上ファイルの条件に当てはまったものだけ、List(ArrayList) に追加します。
 				rcdFiles.add(files[i]);
 			}
 		}
-		//⽐較回数は売上ファイルの数よりも1回少ないため、
-		//繰り返し回数は売上ファイルのリストの数よりも1つ⼩さい数です。
+		//比較回数は売上ファイルの数よりも1回少ないため、
+		//繰り返し回数は売上ファイルのリストの数よりも1つ小さい数です。
 		for (int i = 0; i < rcdFiles.size() - 1; i++) {
 			//--------------------------------↓ファイル名
 			//配列を取るときは、変数名[0]で取れる
@@ -106,14 +118,22 @@ public class CalculateSales {
 					//エラーメッセージをコンソールに表⽰します。
 					System.out.println(rcdFiles.get(i).getName() + "の支店コードが不正です");
 					return;
+				}
 
-					//--↓売上金額の中身を入れたリスト
-					if(filelist.size() != 2) {
-						//売上ファイルの⾏数が2⾏ではなかった場合は、
-						//エラーメッセージをコンソールに表⽰します。
-						System.out.println(rcdFiles.get(i).getName() + "のフォーマットが不正です");
-					}
+				//--↓売上金額の中身を入れたリスト
+				if (filelist.size() != 2) {
+					//売上ファイルの⾏数が2⾏ではなかった場合は、
+					//エラーメッセージをコンソールに表⽰します。
+					System.out.println(rcdFiles.get(i) + "のフォーマットが不正です");
+					return;
+				}
 
+				//---↓売上金額
+				if (!filelist.get(1).matches("^[0-9]*$")) {
+					//売上⾦額が数字ではなかった場合は、
+					//エラーメッセージをコンソールに表⽰します。
+					System.out.println("UNKNOWN_ERROR");
+					return;
 				}
 
 				//売上ファイルから読み込んだ売上金額をMapに加算していくために、型の変換を行います。
