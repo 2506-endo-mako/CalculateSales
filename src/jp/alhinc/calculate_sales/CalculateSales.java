@@ -55,6 +55,23 @@ public class CalculateSales {
 				rcdFiles.add(files[i]);
 			}
 		}
+		//⽐較回数は売上ファイルの数よりも1回少ないため、
+		//繰り返し回数は売上ファイルのリストの数よりも1つ⼩さい数です。
+		for (int i = 0; i < rcdFiles.size() - 1; i++) {
+			//--------------------------------↓ファイル名
+			//配列を取るときは、変数名[0]で取れる
+			//listから取るときは変数名.get ※この時点ではまだfile型　なので.getName()してあげる必要がある
+			int former = Integer.parseInt(rcdFiles.get(i).getName().substring(0, 8));
+			//--------------------------------↓次のファイル名
+			int latter = Integer.parseInt(rcdFiles.get(i + 1).getName().substring(0, 8));
+
+			//⽐較する2つのファイル名の先頭から数字の8⽂字を切り出し、int型に変換します。
+			if ((latter - former) != 1) {
+				//2つのファイル名の数字を⽐較して、差が1ではなかったら、
+				//エラーメッセージをコンソールに表⽰します。
+				System.out.println("売上ファイル名が連番になっていません");
+			}
+		}
 
 		//rcdFilesに複数の売上ファイルの情報を格納しているので、その数だけ繰り返します。
 		for (int i = 0; i < rcdFiles.size(); i++) {
@@ -83,11 +100,32 @@ public class CalculateSales {
 					filelist.add(line);
 				}
 
+				//---↓⽀店コードを⼊れたMap???---↓支店コード
+				if (!branchNames.containsKey(filelist.get(0))) {
+					//⽀店情報を保持しているMapに売上ファイルの⽀店コードが存在しなかった場合は、
+					//エラーメッセージをコンソールに表⽰します。
+					System.out.println(rcdFiles.get(i).getName() + "の支店コードが不正です");
+					return;
+
+					//--↓売上金額の中身を入れたリスト
+					if(filelist.size() != 2) {
+						//売上ファイルの⾏数が2⾏ではなかった場合は、
+						//エラーメッセージをコンソールに表⽰します。
+						System.out.println(rcdFiles.get(i).getName() + "のフォーマットが不正です");
+					}
+
+				}
+
 				//売上ファイルから読み込んだ売上金額をMapに加算していくために、型の変換を行います。
 				long fileSale = Long.parseLong(filelist.get(1));
 
 				//読み込んだ売上⾦額を加算します。(branchSalesはMapのこと)
 				Long saleAmount = branchSales.get(filelist.get(0)) + fileSale;
+
+				if (saleAmount >= 10000000000L) {
+					//売上⾦額が11桁以上の場合、エラーメッセージをコンソールに表⽰します。
+					System.out.println("合計金額が10桁を超えました");
+				}
 
 				//加算した売上⾦額をMapに追加します。
 				branchSales.put(filelist.get(0), saleAmount);
@@ -108,7 +146,7 @@ public class CalculateSales {
 				}
 			} //finallyの終わり
 		} //for文の終わり
-		if(!writeFile(args[0], FILE_NAME_BRANCH_OUT, branchNames, branchSales)) {
+		if (!writeFile(args[0], FILE_NAME_BRANCH_OUT, branchNames, branchSales)) {
 			return;
 		}
 	}
@@ -133,6 +171,13 @@ public class CalculateSales {
 			// fileName…引数で持ってきた値。中身は”branch.lst”
 			//Mapに追加する2つの情報を putの引数として指定します。
 			File file = new File(path, fileName);
+
+			//支店定義ファイルが無かったときのエラー処理
+			if (!file.exists()) {
+				//⽀店定義ファイルが存在しない場合、コンソールにエラーメッセージを表⽰します。
+				System.out.println(FILE_NOT_EXIST);
+				return false;
+			}
 			FileReader fr = new FileReader(file);
 			br = new BufferedReader(fr);
 
@@ -141,12 +186,24 @@ public class CalculateSales {
 			while ((line = br.readLine()) != null) {
 				// ※ここの読み込み処理を変更してください。(処理内容1-2)
 				String[] items = line.split(",");
+
+				//支店定義ファイルの仕様が違った時のエラー処理　　支店コード→items[0]
+				if ((items.length != 2) || (!items[0].matches("^[0-9]{3}$"))) {
+					//⽀店定義ファイルの仕様が満たされていない場合、
+					//エラーメッセージをコンソールに表⽰します。
+					System.out.println(FILE_INVALID_FORMAT);
+					return false;
+
+				}
+
 				branchNames.put(items[0], items[1]);
 				branchSales.put(items[0], 0L);
+
 			}
 
 		} catch (IOException e) {
 			System.out.println(UNKNOWN_ERROR);
+			//読み込めなかったと返している
 			return false;
 		} finally {
 			// ファイルを開いている場合
@@ -194,8 +251,8 @@ public class CalculateSales {
 				//書く      ↓書き込みたい文字列
 				bw.write(key + "," + branchNames.get(key) + "," + branchSales.get(key));
 				bw.newLine();
-			}
 
+			}
 		} catch (IOException e) {
 			System.out.println(UNKNOWN_ERROR);
 			return false;
