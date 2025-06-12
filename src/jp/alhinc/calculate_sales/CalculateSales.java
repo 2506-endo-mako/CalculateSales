@@ -73,24 +73,24 @@ public class CalculateSales {
 				String line;
 
 				//保持する用のlistを宣言する★
-				List<String> list = new ArrayList<>();
+				List<String> filelist = new ArrayList<>();
 
 				// 一行ずつ読み込む(値がnullでない限り、1行ずつ読み込み、lineに入れる　を繰り返す)
 				while ((line = br.readLine()) != null) {
 
 					//売上ファイルの1行目には支店コード、2行目には売上金額が入っています。
 					//どちらもこの後の処理で必要となるため、売上ファイルの中身(line)はListで保持(add)しましょう。★
-					list.add(line);
+					filelist.add(line);
 				}
 
 				//売上ファイルから読み込んだ売上金額をMapに加算していくために、型の変換を行います。
-				long fileSale = Long.parseLong(list.get(1));
+				long fileSale = Long.parseLong(filelist.get(1));
 
 				//読み込んだ売上⾦額を加算します。(branchSalesはMapのこと)
-				Long saleAmount = branchSales.get(list.get(0)) + fileSale;
+				Long saleAmount = branchSales.get(filelist.get(0)) + fileSale;
 
 				//加算した売上⾦額をMapに追加します。
-				branchSales.put(list.get(0), saleAmount);
+				branchSales.put(filelist.get(0), saleAmount);
 
 			} catch (IOException e) {
 				System.out.println(UNKNOWN_ERROR);
@@ -131,6 +131,7 @@ public class CalculateSales {
 			//ファイルを開く
 			//path…引数で持ってきた値。中身はファイルパス
 			// fileName…引数で持ってきた値。中身は”branch.lst”
+			//Mapに追加する2つの情報を putの引数として指定します。
 			File file = new File(path, fileName);
 			FileReader fr = new FileReader(file);
 			br = new BufferedReader(fr);
@@ -142,8 +143,6 @@ public class CalculateSales {
 				String[] items = line.split(",");
 				branchNames.put(items[0], items[1]);
 				branchSales.put(items[0], 0L);
-
-				//Mapに追加する2つの情報を putの引数として指定します。
 			}
 
 		} catch (IOException e) {
