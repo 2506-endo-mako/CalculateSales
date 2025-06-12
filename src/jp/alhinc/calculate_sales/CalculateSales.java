@@ -77,10 +77,10 @@ public class CalculateSales {
 			//--------------------------------↓次のファイル名
 			int latter = Integer.parseInt(rcdFiles.get(i + 1).getName().substring(0, 8));
 
-			//⽐較する2つのファイル名の先頭から数字の8⽂字を切り出し、int型に変換します。
+			//比較する2つのファイル名の先頭から数字の8文字を切り出し、int型に変換します。
 			if ((latter - former) != 1) {
-				//2つのファイル名の数字を⽐較して、差が1ではなかったら、
-				//エラーメッセージをコンソールに表⽰します。
+				//2つのファイル名の数字を比較して、差が1ではなかったら、
+				//エラーメッセージをコンソールに表示します。
 				System.out.println("売上ファイル名が連番になっていません");
 			}
 		}
@@ -104,7 +104,7 @@ public class CalculateSales {
 				//保持する用のlistを宣言する★
 				List<String> filelist = new ArrayList<>();
 
-				// 一行ずつ読み込む(値がnullでない限り、1行ずつ読み込み、lineに入れる　を繰り返す)
+				// 一行ずつ読み込む(値がnullでない限り、1行ずつ読み込み、lineに入れるを繰り返す)
 				while ((line = br.readLine()) != null) {
 
 					//売上ファイルの1行目には支店コード、2行目には売上金額が入っています。
@@ -112,26 +112,26 @@ public class CalculateSales {
 					filelist.add(line);
 				}
 
-				//---↓⽀店コードを⼊れたMap???---↓支店コード
+				//---↓支店コードを入れたMap---↓支店コード
 				if (!branchNames.containsKey(filelist.get(0))) {
 					//⽀店情報を保持しているMapに売上ファイルの⽀店コードが存在しなかった場合は、
-					//エラーメッセージをコンソールに表⽰します。
+					//エラーメッセージをコンソールに表示します。
 					System.out.println(rcdFiles.get(i).getName() + "の支店コードが不正です");
 					return;
 				}
 
 				//--↓売上金額の中身を入れたリスト
 				if (filelist.size() != 2) {
-					//売上ファイルの⾏数が2⾏ではなかった場合は、
-					//エラーメッセージをコンソールに表⽰します。
+					//売上ファイルの行数が2行ではなかった場合は、
+					//エラーメッセージをコンソールに表示します。
 					System.out.println(rcdFiles.get(i) + "のフォーマットが不正です");
 					return;
 				}
 
 				//---↓売上金額
 				if (!filelist.get(1).matches("^[0-9]*$")) {
-					//売上⾦額が数字ではなかった場合は、
-					//エラーメッセージをコンソールに表⽰します。
+					//売上金額が数字ではなかった場合は、
+					//エラーメッセージをコンソールに表示します。
 					System.out.println("UNKNOWN_ERROR");
 					return;
 				}
@@ -139,15 +139,15 @@ public class CalculateSales {
 				//売上ファイルから読み込んだ売上金額をMapに加算していくために、型の変換を行います。
 				long fileSale = Long.parseLong(filelist.get(1));
 
-				//読み込んだ売上⾦額を加算します。(branchSalesはMapのこと)
+				//読み込んだ売上金額を加算します。(branchSalesはMapのこと)
 				Long saleAmount = branchSales.get(filelist.get(0)) + fileSale;
 
 				if (saleAmount >= 10000000000L) {
-					//売上⾦額が11桁以上の場合、エラーメッセージをコンソールに表⽰します。
+					//売上金額が11桁以上の場合、エラーメッセージをコンソールに表示します。
 					System.out.println("合計金額が10桁を超えました");
 				}
 
-				//加算した売上⾦額をMapに追加します。
+				//加算した売上金額をMapに追加します。
 				branchSales.put(filelist.get(0), saleAmount);
 
 			} catch (IOException e) {
@@ -180,9 +180,8 @@ public class CalculateSales {
 	 * @param 支店コードと売上金額を保持するMap
 	 * @return 読み込み可否
 	 */
-	//365行目、if(!readFile(args[0], FILE_NAME_BRANCH_LST, branchNames, branchSales)) {から呼ばれます
-	private static boolean readFile(String path, String fileName, Map<String, String> branchNames,
-			Map<String, Long> branchSales) {
+	//35行目、if(!readFile(args[0], FILE_NAME_BRANCH_LST, branchNames, branchSales)) {から呼ばれます
+	private static boolean readFile(String path, String fileName, Map<String, String> branchNames,Map<String, Long> branchSales) {
 		BufferedReader br = null;
 
 		try {
@@ -207,7 +206,7 @@ public class CalculateSales {
 				// ※ここの読み込み処理を変更してください。(処理内容1-2)
 				String[] items = line.split(",");
 
-				//支店定義ファイルの仕様が違った時のエラー処理　　支店コード→items[0]
+				//支店定義ファイルの仕様が違った時のエラー処理　支店コード→items[0]
 				if ((items.length != 2) || (!items[0].matches("^[0-9]{3}$"))) {
 					//⽀店定義ファイルの仕様が満たされていない場合、
 					//エラーメッセージをコンソールに表⽰します。
@@ -266,9 +265,9 @@ public class CalculateSales {
 			//                   ↓支店コードを入れたmapのこと
 			for (String key : branchNames.keySet()) {
 				//keyという変数には、Mapから取得したキーが代入されています。
-				//拡張for⽂で繰り返されているので、1つ⽬のキーが取得できたら、
-				//2つ⽬の取得...といったように、次々とkeyという変数に上書きされていきます。
-				//書く      ↓書き込みたい文字列
+				//拡張for文で繰り返されているので、1つ目のキーが取得できたら、
+				//2つ目の取得...といったように、次々とkeyという変数に上書きされていきます。
+				//書く      ↓書き込みたい文字列　　　keyを呼び出すとvalueがついてくる
 				bw.write(key + "," + branchNames.get(key) + "," + branchSales.get(key));
 				bw.newLine();
 
