@@ -7,6 +7,7 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -23,6 +24,8 @@ public class CalculateSales {
 	private static final String UNKNOWN_ERROR = "予期せぬエラーが発生しました";
 	private static final String FILE_NOT_EXIST = "支店定義ファイルが存在しません";
 	private static final String FILE_INVALID_FORMAT = "支店定義ファイルのフォーマットが不正です";
+	private static final String FILE_NOT_SERIAL_NUMBER = "売上ファイル名が連番になっていません";
+	private static final String FILE_MORE_THAN_10_DIGITS = "合計金額が10桁を超えました";
 
 	/**
 	 * メインメソッド
@@ -30,16 +33,16 @@ public class CalculateSales {
 	 * @param コマンドライン引数＝args＝フォルダパス(C:\Users\trainee1425\Desktop\売上集計課題)
 	 */
 	public static void main(String[] args) {
-		// 支店コードと支店名を保持するMap
-		Map<String, String> branchNames = new HashMap<>();
-		// 支店コードと売上金額を保持するMap
-		Map<String, Long> branchSales = new HashMap<>();
 
 		if (args.length != 1) {
 			//コマンドライン引数が1つ設定されていなかった場合は、
 			//エラーメッセージをコンソールに表⽰します。
 			System.out.println(UNKNOWN_ERROR);
 		}
+		// 支店コードと支店名を保持するMap
+		Map<String, String> branchNames = new HashMap<>();
+		// 支店コードと売上金額を保持するMap
+		Map<String, Long> branchSales = new HashMap<>();
 
 		// 支店定義ファイル読み込み処理
 		//61行目private static boolean readFileを呼びます
@@ -61,12 +64,15 @@ public class CalculateSales {
 
 				//対象がファイルであり、「数字8桁.rcd」なのか判定します。
 				//上記のコードに差し替えるため下記のコードは//で消す
-				//		if (files[i].getName().matches("^[0-9]{8}[.]rcd$")) {
+				//if (files[i].getName().matches("^[0-9]{8}[.]rcd$")) {
 				//trueの場合の処理
 				//売上ファイルの条件に当てはまったものだけ、List(ArrayList) に追加します。
 				rcdFiles.add(files[i]);
 			}
 		}
+
+		Collections.sort(rcdFiles);
+
 		//比較回数は売上ファイルの数よりも1回少ないため、
 		//繰り返し回数は売上ファイルのリストの数よりも1つ小さい数です。
 		for (int i = 0; i < rcdFiles.size() - 1; i++) {
@@ -81,7 +87,7 @@ public class CalculateSales {
 			if ((latter - former) != 1) {
 				//2つのファイル名の数字を比較して、差が1ではなかったら、
 				//エラーメッセージをコンソールに表示します。
-				System.out.println("売上ファイル名が連番になっていません");
+				System.out.println(FILE_NOT_SERIAL_NUMBER);
 			}
 		}
 
@@ -101,15 +107,23 @@ public class CalculateSales {
 				//1行読み込んだものを格納
 				String line;
 
-				//保持する用のlistを宣言する★
+				//保持する用のlistを宣言する
 				List<String> filelist = new ArrayList<>();
 
 				// 一行ずつ読み込む(値がnullでない限り、1行ずつ読み込み、lineに入れるを繰り返す)
 				while ((line = br.readLine()) != null) {
 
 					//売上ファイルの1行目には支店コード、2行目には売上金額が入っています。
-					//どちらもこの後の処理で必要となるため、売上ファイルの中身(line)はListで保持(add)しましょう。★
+					//どちらもこの後の処理で必要となるため、売上ファイルの中身(line)はListで保持(add)しましょう。
 					filelist.add(line);
+				}
+
+				//--↓売上金額の中身を入れたリスト
+				if (filelist.size() != 2) {
+					//売上ファイルの行数が2行ではなかった場合は、
+					//エラーメッセージをコンソールに表示します。
+					System.out.println(rcdFiles.get(i).getName() + "のフォーマットが不正です");
+					return;
 				}
 
 				//---↓支店コードを入れたMap---↓支店コード
@@ -120,16 +134,8 @@ public class CalculateSales {
 					return;
 				}
 
-				//--↓売上金額の中身を入れたリスト
-				if (filelist.size() != 2) {
-					//売上ファイルの行数が2行ではなかった場合は、
-					//エラーメッセージをコンソールに表示します。
-					System.out.println(rcdFiles.get(i) + "のフォーマットが不正です");
-					return;
-				}
-
 				//---↓売上金額
-				if (!filelist.get(1).matches("^[0-9]*$")) {
+				if (!filelist.get(1).matches("^[0-9]+$")) {
 					//売上金額が数字ではなかった場合は、
 					//エラーメッセージをコンソールに表示します。
 					System.out.println("UNKNOWN_ERROR");
@@ -144,7 +150,7 @@ public class CalculateSales {
 
 				if (saleAmount >= 10000000000L) {
 					//売上金額が11桁以上の場合、エラーメッセージをコンソールに表示します。
-					System.out.println("合計金額が10桁を超えました");
+					System.out.println(FILE_MORE_THAN_10_DIGITS);
 				}
 
 				//加算した売上金額をMapに追加します。
@@ -166,6 +172,7 @@ public class CalculateSales {
 				}
 			} //finallyの終わり
 		} //for文の終わり
+
 		if (!writeFile(args[0], FILE_NAME_BRANCH_OUT, branchNames, branchSales)) {
 			return;
 		}
@@ -180,8 +187,9 @@ public class CalculateSales {
 	 * @param 支店コードと売上金額を保持するMap
 	 * @return 読み込み可否
 	 */
-	//35行目、if(!readFile(args[0], FILE_NAME_BRANCH_LST, branchNames, branchSales)) {から呼ばれます
-	private static boolean readFile(String path, String fileName, Map<String, String> branchNames,Map<String, Long> branchSales) {
+	//上の方の、if(!readFile(args[0], FILE_NAME_BRANCH_LST, branchNames, branchSales)) {から呼ばれます
+	private static boolean readFile(String path, String fileName, Map<String, String> branchNames,
+			Map<String, Long> branchSales) {
 		BufferedReader br = null;
 
 		try {
