@@ -38,6 +38,7 @@ public class CalculateSales {
 			//コマンドライン引数が1つ設定されていなかった場合は、
 			//エラーメッセージをコンソールに表⽰します。
 			System.out.println(UNKNOWN_ERROR);
+			return;
 		}
 		// 支店コードと支店名を保持するMap
 		Map<String, String> branchNames = new HashMap<>();
@@ -63,8 +64,6 @@ public class CalculateSales {
 			if (files[i].isFile() && files[i].getName().matches("^[0-9]{8}[.]rcd$")) {
 
 				//対象がファイルであり、「数字8桁.rcd」なのか判定します。
-				//上記のコードに差し替えるため下記のコードは//で消す
-				//if (files[i].getName().matches("^[0-9]{8}[.]rcd$")) {
 				//trueの場合の処理
 				//売上ファイルの条件に当てはまったものだけ、List(ArrayList) に追加します。
 				rcdFiles.add(files[i]);
@@ -270,7 +269,7 @@ public class CalculateSales {
 			FileWriter fw = new FileWriter(file);
 			bw = new BufferedWriter(fw);
 
-			//                   ↓支店コードを入れたmapのこと
+			//-------------------↓支店コードを入れたmapのこと
 			for (String key : branchNames.keySet()) {
 				//keyという変数には、Mapから取得したキーが代入されています。
 				//拡張for文で繰り返されているので、1つ目のキーが取得できたら、
